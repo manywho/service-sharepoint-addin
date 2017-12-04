@@ -1,11 +1,24 @@
 package com.manywho.sharepoint.flow.addin.hosted.flow;
 
 import com.google.common.base.Strings;
+import com.manywho.sdk.client.flow.FlowClient;
+import com.manywho.sdk.client.flow.FlowInitializationOptions;
+import com.manywho.sdk.client.flow.FlowState;
+
+import javax.inject.Inject;
 import javax.ws.rs.*;
+import java.util.UUID;
 
 
 @Path("/callback")
 public class AddInController {
+
+    private FlowClient flowClient;
+
+    @Inject
+    public AddInController(FlowClient flowClient) {
+        this.flowClient = flowClient;
+    }
 
     @Path("/run-flow-web-part")
     @Produces("text/html")
@@ -34,6 +47,28 @@ public class AddInController {
 
     private String runFlowInternal(String contextToken, String flowId, String flowVersionId, String tenantId,
                                    String adminTenantId, String host, String player, String mode) {
+
+        UUID tenantUuid = null;
+        UUID flowIdUuid = null;
+        UUID flowVersionIdUuid = null;
+
+        if (!Strings.isNullOrEmpty(flowId)) {
+            flowIdUuid = UUID.fromString(flowId);
+        }
+
+        if (!Strings.isNullOrEmpty(flowVersionId)) {
+            flowVersionIdUuid = UUID.fromString(flowVersionId);
+        }
+
+        if (!Strings.isNullOrEmpty(tenantId)) {
+            tenantUuid = UUID.fromString(tenantId);
+        }
+
+        FlowInitializationOptions options = new FlowInitializationOptions();
+        FlowState flowState = flowClient.start(tenantUuid, flowIdUuid, flowVersionIdUuid, options);
+
+        String page = String.format("<iframe src=\"https://%s/%s/play/default?join=%s\"></iframe>",
+                host, tenantId, flowState.getState().toString());
 
         if (Strings.isNullOrEmpty(mode) || "DEFAULT".equals(mode)) {
             mode = "null";
@@ -228,6 +263,8 @@ public class AddInController {
         template = template.replace("{{initialization}}", initialization);
         template = template.replace("{{accessToken}}", contextToken);
 
-        return template;
+        //return template;
+        page = "https://flow.manywho.com/8b572d5b-76ba-473e-9e37-be06b6e8a396/play/default?join=4acafa83-a67a-40c1-8ce5-57954cf6725d";
+        return page;
     }
 }
