@@ -15,9 +15,9 @@ public class AddInController {
 
     private FlowClient flowClient;
 
-    @Inject
-    public AddInController(FlowClient flowClient) {
-        this.flowClient = flowClient;
+    public AddInController() {
+
+        this.flowClient = null;
     }
 
     @Path("/run-flow-web-part")
@@ -45,6 +45,15 @@ public class AddInController {
                 "", "");
     }
 
+    @Path("/run-flow")
+    @Produces("text/html")
+    @GET
+    public String runFlowGet() {
+
+        return runFlowInternal("", "", "", "", "", "", "", "");
+        // todo allow configure the app to run standalone without a web part
+    }
+
     private String runFlowInternal(String contextToken, String flowId, String flowVersionId, String tenantId,
                                    String adminTenantId, String host, String player, String mode) {
 
@@ -64,11 +73,11 @@ public class AddInController {
             tenantUuid = UUID.fromString(tenantId);
         }
 
-        FlowInitializationOptions options = new FlowInitializationOptions();
-        FlowState flowState = flowClient.start(tenantUuid, flowIdUuid, flowVersionIdUuid, options);
+//        FlowInitializationOptions options = new FlowInitializationOptions();
+//        FlowState flowState = flowClient.start(tenantUuid, flowIdUuid, flowVersionIdUuid, options);
 
-        String page = String.format("<iframe src=\"https://%s/%s/play/default?join=%s\"></iframe>",
-                host, tenantId, flowState.getState().toString());
+//        String page = String.format("<iframe src=\"https://%s/%s/play/default?join=%s\"></iframe>",
+//                host, tenantId, flowState.getState().toString());
 
         if (Strings.isNullOrEmpty(mode) || "DEFAULT".equals(mode)) {
             mode = "null";
@@ -264,7 +273,10 @@ public class AddInController {
         template = template.replace("{{accessToken}}", contextToken);
 
         //return template;
-        page = "https://flow.manywho.com/8b572d5b-76ba-473e-9e37-be06b6e8a396/play/default?join=4acafa83-a67a-40c1-8ce5-57954cf6725d";
+        String iframe = "<iframe  src=\"https://flow.manywho.com/8b572d5b-76ba-473e-9e37-be06b6e8a396/play/default?join=4acafa83-a67a-40c1-8ce5-57954cf6725d\" frameborder=\"0\" style=\"overflow:hidden;height:100%;width:100%\" height=\"100%\" width=\"100%\"></iframe>";
+
+        String page = "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>title</title></head><body><p>ok</p>"+iframe+"</body></html>";
+
         return page;
     }
 }
