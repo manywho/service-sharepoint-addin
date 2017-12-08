@@ -120,8 +120,7 @@ public class AddInController {
             joinUrl = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default?join=f59b6c8d-4892-4cce-87b7-297cd0440601";
         }
 
-        String ifFrame = String.format("<iframe  src=\"%s\" frameborder=\"0\" style=\"overflow:hidden;height:calc(100vh - 300px);width:100%\" height=\"100%\" width=\"100%\"></iframe>",
-                joinUrl);
+        String ifFrame = String.format("<iframe  src=\"%s\" frameborder=\"0\" style=\"overflow:hidden;height:calc(100vh - 300px);width:100%%\" height=\"100%%\" width=\"100%%\"></iframe>", joinUrl);
 
         return String.format("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>title</title></head><body>%s</body></html>", ifFrame);
 
