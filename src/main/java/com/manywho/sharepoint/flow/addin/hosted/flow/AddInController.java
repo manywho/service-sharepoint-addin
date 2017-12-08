@@ -116,12 +116,14 @@ public class AddInController {
             joinUrl = engineInvokeResponse1.getJoinFlowUri();
 
         } catch (Exception e) {
+            // if there is an exception initialization of the flow I run an specific flow with very basic information
             joinUrl = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default?join=f59b6c8d-4892-4cce-87b7-297cd0440601";
         }
 
-        //return template;
-        String ifFrame = "<iframe  src=\"" + joinUrl + "\" frameborder=\"0\" style=\"overflow:hidden;height:calc(100vh - 300px);width:100%\" height=\"100%\" width=\"100%\"></iframe>";
-        return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>title</title></head><body>" + ifFrame + "</body></html>";
+        String ifFrame = String.format("<iframe  src=\"%s\" frameborder=\"0\" style=\"overflow:hidden;height:calc(100vh - 300px);width:100%\" height=\"100%\" width=\"100%\"></iframe>",
+                joinUrl);
+
+        return String.format("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>title</title></head><body>%s</body></html>", ifFrame);
 
     }
 }
