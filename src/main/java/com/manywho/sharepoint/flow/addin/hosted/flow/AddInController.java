@@ -5,17 +5,10 @@ import com.google.inject.Inject;
 import com.manywho.sdk.api.InvokeType;
 import com.manywho.sdk.api.draw.flow.FlowId;
 import com.manywho.sdk.api.run.*;
-import com.manywho.sdk.api.run.elements.map.MapElementInvokeRequest;
 import com.manywho.sdk.api.security.AuthenticationCredentials;
-import com.manywho.sdk.client.flow.FlowClient;
-import com.manywho.sdk.client.flow.FlowState;
 import com.manywho.sdk.client.run.RunClient;
-import retrofit2.Call;
-import retrofit2.http.Header;
 
 import javax.ws.rs.*;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.UUID;
 
 @Path("/callback")
@@ -40,8 +33,7 @@ public class AddInController {
                                  @QueryParam("admin-tenant-id") String adminTenantId,
                                  @QueryParam("host") String host,
                                  @QueryParam("player") String player,
-                                 @QueryParam("mode") String mode
-    ) {
+                                 @QueryParam("mode") String mode) {
 
         return this.runFlowInternal(contextToken, flowId, flowVersionId, tenantId, adminTenantId, host, player, mode);
     }
@@ -50,6 +42,7 @@ public class AddInController {
     @Produces("text/html")
     @POST
     public String runFlow(@FormParam("SPAppToken") String contextToken) {
+
         // todo allow configure the app to run standalone without a web part
         return this.runFlowInternal(contextToken, "", "", "", "", "",
                 "", "");
@@ -67,32 +60,35 @@ public class AddInController {
     private String runFlowInternal(String contextToken, String flowId, String flowVersionId, String tenantId,
                                    String adminTenantId, String host, String player, String mode) {
 
+        String joinUrl = "";
+
         UUID tenantUuid = null;
         UUID flowIdUuid = null;
         UUID flowVersionIdUuid = null;
 
-        if (!Strings.isNullOrEmpty(flowId)) {
-            flowIdUuid = UUID.fromString(flowId);
-        }
-
-        if (!Strings.isNullOrEmpty(flowVersionId)) {
-            flowVersionIdUuid = UUID.fromString(flowVersionId);
-        }
-
-        if (!Strings.isNullOrEmpty(tenantId)) {
-            tenantUuid = UUID.fromString(tenantId);
-        }
-
-        EngineInitializationRequest request = new EngineInitializationRequest();
-        FlowId flowIdrequest = new FlowId();
-        flowIdrequest.setId(flowIdUuid);
-        flowIdrequest.setVersionId(flowVersionIdUuid);
-
-        request.setFlowId(flowIdrequest);
-        request.setPlayerUrl("https://" + host + "/" + tenantId + "/play/" + player);
-        request.setJoinPlayerUrl("https://" + host + "/" + tenantId + "/play/" + player);
-
         try {
+
+            if (!Strings.isNullOrEmpty(flowId)) {
+                flowIdUuid = UUID.fromString(flowId);
+            }
+
+            if (!Strings.isNullOrEmpty(flowVersionId)) {
+                flowVersionIdUuid = UUID.fromString(flowVersionId);
+            }
+
+            if (!Strings.isNullOrEmpty(tenantId)) {
+                tenantUuid = UUID.fromString(tenantId);
+            }
+
+            EngineInitializationRequest request = new EngineInitializationRequest();
+            FlowId flowIdrequest = new FlowId();
+            flowIdrequest.setId(flowIdUuid);
+            flowIdrequest.setVersionId(flowVersionIdUuid);
+
+            request.setFlowId(flowIdrequest);
+            request.setPlayerUrl("https://" + host + "/" + tenantId + "/play/" + player);
+            request.setJoinPlayerUrl("https://" + host + "/" + tenantId + "/play/" + player);
+
             EngineInitializationResponse engineInitializationResponse = runClient.initialize(null, tenantId, request)
                     .execute()
                     .body();
@@ -113,19 +109,19 @@ public class AddInController {
                     .execute()
                     .body();
 
-            EngineInvokeResponse engineInvokeResponse1 = runClient.join(authentication,tenantUuid, engineInitializationResponse.getStateId())
-            .execute()
-            .body();
+            EngineInvokeResponse engineInvokeResponse1 = runClient.join(authentication, tenantUuid, engineInitializationResponse.getStateId())
+                    .execute()
+                    .body();
 
-            //return template;
-            String ifFrame = "<iframe  src=\"" + engineInvokeResponse1.getJoinFlowUri() +"\" frameborder=\"0\" style=\"overflow:hidden;height:calc(100vh - 300px);width:100%\" height=\"100%\" width=\"100%\"></iframe>";
+            joinUrl = engineInvokeResponse1.getJoinFlowUri();
 
-            return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>title</title></head><body>" + ifFrame + "</body></html>";
-
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            joinUrl = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default?join=f59b6c8d-4892-4cce-87b7-297cd0440601";
         }
 
-        return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>title</title></head><body> There is a problem in the initialization of this flow</body></html>";
+        //return template;
+        String ifFrame = "<iframe  src=\"" + joinUrl + "\" frameborder=\"0\" style=\"overflow:hidden;height:calc(100vh - 300px);width:100%\" height=\"100%\" width=\"100%\"></iframe>";
+        return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>title</title></head><body>" + ifFrame + "</body></html>";
+
     }
 }
