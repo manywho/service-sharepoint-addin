@@ -117,7 +117,7 @@ public class AddInController {
 
         } catch (Exception e) {
             // if there is an exception initialization of the flow I run an specific flow with very basic information
-            joinUrl = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default?join=f59b6c8d-4892-4cce-87b7-297cd0440601";
+            joinUrl = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default/?join=1cd70619-4834-4d5e-a50c-a2aba96217a0";
         }
 
         String ifFrame = String.format("<iframe  src=\"%s\" frameborder=\"0\" style=\"overflow:hidden;height:calc(100vh - 300px);width:100%%\" height=\"100%%\" width=\"100%%\"></iframe>", joinUrl);
