@@ -14,11 +14,12 @@ import java.util.UUID;
 @Path("/callback")
 public class AddInController {
 
+    private final String DEFAULT_FLOW = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default/?join=1cd70619-4834-4d5e-a50c-a2aba96217a0";
+
     private RunClient runClient;
 
     @Inject
     public AddInController(RunClient runClient) {
-
         this.runClient = runClient;
     }
 
@@ -42,10 +43,8 @@ public class AddInController {
     @Produces("text/html")
     @POST
     public String runFlow(@FormParam("SPAppToken") String contextToken) {
-
         // todo allow configure the app to run standalone without a web part
-        return this.runFlowInternal(contextToken, "", "", "", "", "",
-                "", "");
+        return pageWithFlowInIframe(DEFAULT_FLOW);
     }
 
     @Path("/run-flow")
@@ -53,31 +52,26 @@ public class AddInController {
     @GET
     public String runFlowGet() {
 
-        return runFlowInternal("", "", "", "", "", "", "", "");
         // todo allow configure the app to run standalone without a web part
+        return pageWithFlowInIframe(DEFAULT_FLOW);
     }
 
     private String runFlowInternal(String contextToken, String flowId, String flowVersionId, String tenantId,
                                    String adminTenantId, String host, String player, String mode) {
 
-        String joinUrl = "";
-
-        UUID tenantUuid = null;
-        UUID flowIdUuid = null;
-        UUID flowVersionIdUuid = null;
-
         try {
 
-            if (!Strings.isNullOrEmpty(flowId)) {
-                flowIdUuid = UUID.fromString(flowId);
+            UUID flowVersionIdUuid = null;
+
+            if (Strings.isNullOrEmpty(flowId) || Strings.isNullOrEmpty(tenantId)) {
+                return pageWithFlowInIframe(DEFAULT_FLOW);
             }
+
+            UUID flowIdUuid = UUID.fromString(flowId);
+            UUID tenantUuid = UUID.fromString(tenantId);
 
             if (!Strings.isNullOrEmpty(flowVersionId)) {
                 flowVersionIdUuid = UUID.fromString(flowVersionId);
-            }
-
-            if (!Strings.isNullOrEmpty(tenantId)) {
-                tenantUuid = UUID.fromString(tenantId);
             }
 
             EngineInitializationRequest request = new EngineInitializationRequest();
@@ -113,16 +107,18 @@ public class AddInController {
                     .execute()
                     .body();
 
-            joinUrl = engineInvokeResponse1.getJoinFlowUri();
-
+            return pageWithFlowInIframe(engineInvokeResponse1.getJoinFlowUri());
         } catch (Exception e) {
-            // if there is an exception initialization of the flow I run an specific flow with very basic information
-            joinUrl = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default/?join=1cd70619-4834-4d5e-a50c-a2aba96217a0";
-        }
 
+            // if there is an exception initialization of the flow I run an specific flow with very basic information
+            return pageWithFlowInIframe(DEFAULT_FLOW);
+        }
+    }
+
+
+    private String pageWithFlowInIframe(String joinUrl) {
         String ifFrame = String.format("<iframe  src=\"%s\" frameborder=\"0\" style=\"overflow:hidden;height:calc(100vh - 300px);width:100%%\" height=\"100%%\" width=\"100%%\"></iframe>", joinUrl);
 
         return String.format("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><title>title</title></head><body>%s</body></html>", ifFrame);
-
     }
 }
