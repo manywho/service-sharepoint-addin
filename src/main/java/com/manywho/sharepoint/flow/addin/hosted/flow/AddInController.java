@@ -14,7 +14,7 @@ import java.util.UUID;
 @Path("/callback")
 public class AddInController {
 
-    private final String DEFAULT_FLOW = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default/?join=1cd70619-4834-4d5e-a50c-a2aba96217a0";
+    private final String DEFAULT_FLOW = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default/?flow-id=393badb0-14f4-4d5e-a79c-f00a323fc4a9";
 
     private RunClient runClient;
 
