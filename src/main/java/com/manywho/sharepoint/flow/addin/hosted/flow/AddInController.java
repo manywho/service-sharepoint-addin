@@ -1,27 +1,11 @@
 package com.manywho.sharepoint.flow.addin.hosted.flow;
 
-import com.google.common.base.Strings;
-import com.google.inject.Inject;
-import com.manywho.sdk.api.InvokeType;
-import com.manywho.sdk.api.draw.flow.FlowId;
-import com.manywho.sdk.api.run.*;
-import com.manywho.sdk.api.security.AuthenticationCredentials;
-import com.manywho.sdk.client.run.RunClient;
-
 import javax.ws.rs.*;
-import java.util.UUID;
 
 @Path("/callback")
 public class AddInController {
 
     private final String DEFAULT_FLOW = "https://flow.manywho.com/bb03e922-8a39-46e8-b492-aacd2ccb5a42/play/default/?flow-id=393badb0-14f4-4d5e-a79c-f00a323fc4a9";
-
-    private RunClient runClient;
-
-    @Inject
-    public AddInController(RunClient runClient) {
-        this.runClient = runClient;
-    }
 
     @Path("/run-flow-web-part")
     @Produces("text/html")
