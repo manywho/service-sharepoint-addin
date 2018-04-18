@@ -60,54 +60,9 @@ public class AddInController {
                                    String adminTenantId, String host, String player, String mode) {
 
         try {
+            return pageWithFlowInIframe(String.format("https://flow.manywho.com/%s/play/%s/?flow-id=%s&flow-version-id=%s&session-token=%s",
+                    tenantId, player, flowId, flowVersionId, contextToken));
 
-            UUID flowVersionIdUuid = null;
-
-            if (Strings.isNullOrEmpty(flowId) || Strings.isNullOrEmpty(tenantId)) {
-                return pageWithFlowInIframe(DEFAULT_FLOW);
-            }
-
-            UUID flowIdUuid = UUID.fromString(flowId);
-            UUID tenantUuid = UUID.fromString(tenantId);
-
-            if (!Strings.isNullOrEmpty(flowVersionId)) {
-                flowVersionIdUuid = UUID.fromString(flowVersionId);
-            }
-
-            EngineInitializationRequest request = new EngineInitializationRequest();
-            FlowId flowIdrequest = new FlowId();
-            flowIdrequest.setId(flowIdUuid);
-            flowIdrequest.setVersionId(flowVersionIdUuid);
-
-            request.setFlowId(flowIdrequest);
-            request.setPlayerUrl("https://" + host + "/" + tenantId + "/play/" + player);
-            request.setJoinPlayerUrl("https://" + host + "/" + tenantId + "/play/" + player);
-
-            EngineInitializationResponse engineInitializationResponse = runClient.initialize(null, tenantId, request)
-                    .execute()
-                    .body();
-
-            EngineInvokeRequest engineInvokeRequest = new EngineInvokeRequest();
-            engineInvokeRequest.setStateId(engineInitializationResponse.getStateId());
-            engineInvokeRequest.setInvokeType(InvokeType.Sync);
-            engineInvokeRequest.setStateToken(engineInitializationResponse.getStateToken());
-            engineInvokeRequest.setMode(mode);
-            engineInvokeRequest.setCurrentMapElementId(engineInitializationResponse.getCurrentMapElementId());
-
-            AuthenticationCredentials authenticationCredentials = new AuthenticationCredentials();
-            authenticationCredentials.setSessionToken(contextToken);
-            authenticationCredentials.setTenantId(tenantUuid);
-
-            String authentication = runClient.authentication(tenantUuid, engineInitializationResponse.getStateId(),
-                    authenticationCredentials)
-                    .execute()
-                    .body();
-
-            EngineInvokeResponse engineInvokeResponse1 = runClient.join(authentication, tenantUuid, engineInitializationResponse.getStateId())
-                    .execute()
-                    .body();
-
-            return pageWithFlowInIframe(engineInvokeResponse1.getJoinFlowUri());
         } catch (Exception e) {
 
             // if there is an exception initialization of the flow I run an specific flow with very basic information
