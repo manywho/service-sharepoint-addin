@@ -1,5 +1,7 @@
 package com.manywho.sharepoint.flow.addin.hosted.flow;
 
+import com.google.common.base.Strings;
+
 import javax.ws.rs.*;
 
 @Path("/callback")
@@ -44,8 +46,15 @@ public class AddInController {
                                    String adminTenantId, String host, String player, String mode) {
 
         try {
-            return pageWithFlowInIframe(String.format("https://flow.manywho.com/%s/play/%s/?flow-id=%s&flow-version-id=%s&session-token=%s",
-                    tenantId, player, flowId, flowVersionId, contextToken));
+            if (Strings.isNullOrEmpty(tenantId) || Strings.isNullOrEmpty(flowId) || Strings.isNullOrEmpty(contextToken) || Strings.isNullOrEmpty(player)) {
+                return pageWithFlowInIframe(DEFAULT_FLOW);
+            } else if (Strings.isNullOrEmpty(flowVersionId)){
+                return pageWithFlowInIframe(String.format("https://flow.manywho.com/%s/play/%s/?flow-id=%s&session-token=%s",
+                        tenantId, player, flowId, contextToken));
+            } else {
+                return pageWithFlowInIframe(String.format("https://flow.manywho.com/%s/play/%s/?flow-id=%s&flow-version-id=%s&session-token=%s",
+                        tenantId, player, flowId, flowVersionId, contextToken));
+            }
 
         } catch (Exception e) {
 
