@@ -21,6 +21,6 @@ public class Application extends Servlet3Server {
 
         server.addModule(new ApplicationBinder());
         server.setApplication(Application.class);
-        server.start("api/sharepoint-addin/1");
+        server.start();
     }
 }
